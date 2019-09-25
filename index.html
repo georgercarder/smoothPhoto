@@ -1,6 +1,7 @@
 <style>
 body {
-  filter: /*blur(20px)*/;
+  filter: blur(100px);
+  transition: filter 1s;
 }
 #background-container-main {
   width: 100%;
@@ -31,12 +32,32 @@ body {
   </div>
   <script>
     var main = document.getElementById("background-container-main");
-    for (var i = 1; i < 2000; i += 10) {
-      var layer = document.createElement("div");
-      layer.classList.add("background-container");
-      layer.id = "background-container-" + i.toString();
-      layer.setAttribute("style", "background: url(target" + i.toString() + ") no-repeat; background-size: cover");
-      main.appendChild(layer);
-    }
+    var idx = Array.from(Array(2000).keys());
+    var maxLoaded = -1;
+    var goal = 0.9 * idx.length;
+    idx.forEach((i) => {
+      if (i % 100 === 0) {
+        var layer = document.createElement("div");
+        layer.classList.add("background-container");
+        layer.id = "background-container-" + i.toString();
+        layer.loaded = false;
+        var img = document.createElement("img");
+        img.setAttribute("style", "opacity: 0; heigth: 0px; width: 0px");
+        console.log(i);
+        img.src = "/target" + i.toString();
+        img.onload = function() { 
+          console.log("hello load");
+          if (i > maxLoaded) {
+            layer.setAttribute("style", "background: url(target" + i.toString() + ") no-repeat; background-size: cover");
+            maxLoaded = i;
+            layer.loaded = true;
+            if (maxLoaded >= goal) {
+              document.body.style.filter = "blur(0)"; 
+            }
+          }
+        }
+        main.appendChild(layer);
+      }
+    });
   </script>
 </body>
